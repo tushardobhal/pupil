@@ -292,6 +292,7 @@ def world(
             ("Accuracy_Visualizer", {}),
             ("Plugin_Manager", {}),
             ("System_Graphs", {}),
+            ("Frame_Publisher", {}),
         ]
 
         # Callback functions

@@ -21,7 +21,7 @@ class Frame_Publisher(Plugin):
     icon_chr = chr(0xEC17)
     icon_font = "pupil_icons"
 
-    def __init__(self, g_pool, format="jpeg"):
+    def __init__(self, g_pool, format="bgr"):
         super().__init__(g_pool)
         self.format = format
         self._did_warn_recently = False
