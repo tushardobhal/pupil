@@ -1,9 +1,6 @@
-from multiprocessing import Queue
-
 import zmq
 import msgpack as serializer
 
-from files.pupil import Pupil
 from files.logger import logger
 
 class EyeListener:
@@ -11,7 +8,7 @@ class EyeListener:
     def __init__(self, eye_id):
         self.eye_id = eye_id
 
-    def eye_receiver(self, eye_source):
+    def eye_receiver(self, eye_proxy):
         logger.info("Starting Eye_{} Frames Listener...".format(self.eye_id))
 
         ctx = zmq.Context()
@@ -33,11 +30,9 @@ class EyeListener:
                 topic = subscriber.recv_string()
                 info = serializer.unpackb(subscriber.recv(), encoding='utf-8')
                 # logger.info("Received Topic - {}, Timestamp - {}, Norm_Pos - {}, Confidence - {}".format(topic, info['timestamp'], info['norm_pos'], info['confidence']))
-                pupil = Pupil(self.eye_id, info['norm_pos'], info['confidence'], info['timestamp'])
-                eye_source.send(pupil)
+                eye_proxy.set_values(self.eye_id, info['norm_pos'], info['confidence'], info['timestamp'])
         except KeyboardInterrupt:
             requester.close()
             subscriber.close()
             ctx.term()
-            eye_source.close()
             logger.warn('Listener is shut down successfully')

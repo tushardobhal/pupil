@@ -1,9 +1,7 @@
 import msgpack as serializer
 import numpy as np
 import zmq
-from multiprocessing import Queue
 
-from files.world import World
 from files.logger import logger
 
 class WorldListener:
@@ -11,7 +9,7 @@ class WorldListener:
     def __init__(self):
         pass
 
-    def world_receiver(self, world_source):
+    def world_receiver(self, world_proxy):
         logger.info("Starting World Frames Listener...")
         ctx = zmq.Context()
 
@@ -36,13 +34,9 @@ class WorldListener:
                 while subscriber.get(zmq.RCVMORE):
                     frame.append(subscriber.recv())
                 frame_data = np.frombuffer(frame[0], dtype=np.uint8).reshape(info['height'], info['width'], 3)
-                world = World(info['index'], info['timestamp'], frame_data)
-                world_source.send(world)
-                # cv2.imshow('frame.world', frame_data)
-                # cv2.waitKey(1)
+                world_proxy.set_values(info['index'], frame_data, info['timestamp'])
         except:
             requester.close()
             subscriber.close()
             ctx.term()
-            world_source.close()
             logger.warn('Listener is shut down successfully')
