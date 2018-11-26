@@ -13,7 +13,8 @@ print("Connecting to port {}".format(sub_port))
 
 subscriber = ctx.socket(zmq.SUB)
 subscriber.connect('tcp://%s:%s'%(ip,sub_port))
-subscriber.setsockopt_string(zmq.SUBSCRIBE, 'frame.world')
+id = ''
+subscriber.setsockopt_string(zmq.SUBSCRIBE, 'gaze.2d.{}'.format(id))
 try:
     while True:
         topic = subscriber.recv_string()
