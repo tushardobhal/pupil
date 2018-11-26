@@ -1,53 +1,96 @@
-from multiprocessing import Process
-import time
+from multiprocessing import Process, Pipe
 from multiprocessing.managers import BaseManager
-
-import cv2
 
 from files.world_listener import WorldListener
 from files.eye_listener import EyeListener
 from files.do_stuff import DoStuff
+from files.do_stuff_together import DoStuffTogether
 from files.logger import logger
 
 from files.world import World
 from files.pupil import Pupil
+from files.common_data import CommonData
 
-def main():
-    BaseManager.register('World', World)
-    manager_world = BaseManager()
-    manager_world.start()
-    world_proxy = manager_world.World()
 
-    BaseManager.register('Pupil', Pupil)
-    manager_eye_0 = BaseManager()
-    manager_eye_0.start()
-    eye_0_proxy = manager_eye_0.Pupil()
+def start_process(glass_id, glass_port, common_data_proxy):
+    try:
+        BaseManager.register('World', World)
+        manager_world = BaseManager()
+        manager_world.start()
+        world_proxy = manager_world.World()
 
-    BaseManager.register('Pupil', Pupil)
-    manager_eye_1 = BaseManager()
-    manager_eye_1.start()
-    eye_1_proxy = manager_eye_1.Pupil()
+        BaseManager.register('Pupil_0', Pupil)
+        manager_eye_0 = BaseManager()
+        manager_eye_0.start()
+        eye_0_proxy = manager_eye_0.Pupil_0()
 
-    world = WorldListener()
-    eye_0 = EyeListener(0)
-    eye_1 = EyeListener(1)
-    do_stuff = DoStuff()
+        BaseManager.register('Pupil_1', Pupil)
+        manager_eye_1 = BaseManager()
+        manager_eye_1.start()
+        eye_1_proxy = manager_eye_1.Pupil_1()
 
-    world_receiver = Process(target=world.world_receiver, args=(world_proxy,), name='frame_world')
-    eye_0_receiver = Process(target=eye_0.eye_receiver, args=(eye_0_proxy,), name='gaze_0')
-    eye_1_receiver = Process(target=eye_1.eye_receiver, args=(eye_1_proxy,), name='gaze_1')
-    do_some_stuff = Process(target=do_stuff.do_some_stuff, args=(world_proxy, eye_0_proxy, eye_1_proxy), name='do_stuff')
+        world = WorldListener(glass_port)
+        eye_0 = EyeListener(0, glass_port)
+        eye_1 = EyeListener(1, glass_port)
+        do_stuff = DoStuff(glass_id, confidence_threshold)
 
-    world_receiver.start()
-    eye_0_receiver.start()
-    eye_1_receiver.start()
-    do_some_stuff.start()
+        world_receiver = Process(target=world.world_receiver, args=(world_proxy,), name='frame_world_glass_{}'.format(glass_id))
+        eye_0_receiver = Process(target=eye_0.eye_receiver, args=(eye_0_proxy,), name='gaze_0_glass_{}'.format(glass_id))
+        eye_1_receiver = Process(target=eye_1.eye_receiver, args=(eye_1_proxy,), name='gaze_1_glass_{}'.format(glass_id))
+        do_some_stuff = Process(target=do_stuff.do_some_stuff, args=(world_proxy, eye_0_proxy, eye_1_proxy, common_data_proxy), name='do_stuff_glass_{}'.format(glass_id))
 
-    world_receiver.join()
-    eye_0_receiver.join()
-    eye_1_receiver.join()
-    do_some_stuff.join()
+    except Exception as e:
+        raise e
+
+    return world_receiver, eye_0_receiver, eye_1_receiver, do_some_stuff
+
 
 if __name__ == "__main__":
     logger.info("Starting application...")
-    main()
+
+    BaseManager.register('CommonData_1', CommonData)
+    manager_1 = BaseManager()
+    manager_1.start()
+    common_data_proxy_1 = manager_1.CommonData_1()
+
+    BaseManager.register('CommonData_2', CommonData)
+    manager_2 = BaseManager()
+    manager_2.start()
+    common_data_proxy_2 = manager_2.CommonData_2()
+
+    do_stuff_together = DoStuffTogether()
+
+    # input parameters to the application
+    port_glass_1 = 50020
+    port_glass_2 = 50021
+    confidence_threshold = 0.75
+
+    # Start glass 1 processes
+    world_receiver_1, eye_0_receiver_1, eye_1_receiver_1, do_some_stuff_1 = start_process(1, port_glass_1, common_data_proxy_1)
+    world_receiver_1.start()
+    eye_0_receiver_1.start()
+    eye_1_receiver_1.start()
+    do_some_stuff_1.start()
+
+    # Start glass 2 processes
+    world_receiver_2, eye_0_receiver_2, eye_1_receiver_2, do_some_stuff_2 = start_process(2, port_glass_2, common_data_proxy_2)
+    world_receiver_2.start()
+    eye_0_receiver_2.start()
+    eye_1_receiver_2.start()
+    do_some_stuff_2.start()
+
+    # Start final combined process
+    stuff_together = Process(target=do_stuff_together.do_some_stuff_together, args=(common_data_proxy_1, common_data_proxy_2), name = "do_stuff_together")
+    stuff_together.start()
+
+    world_receiver_1.join()
+    eye_0_receiver_1.join()
+    eye_0_receiver_1.join()
+    do_some_stuff_1.join()
+
+    world_receiver_2.join()
+    eye_0_receiver_2.join()
+    eye_0_receiver_2.join()
+    do_some_stuff_2.join()
+
+    stuff_together.join()

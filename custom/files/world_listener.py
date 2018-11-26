@@ -4,10 +4,11 @@ import zmq
 
 from files.logger import logger
 
+
 class WorldListener:
 
-    def __init__(self):
-        pass
+    def __init__(self, port_glass_1):
+        self.port = port_glass_1
 
     def world_receiver(self, world_proxy):
         logger.info("Starting World Frames Listener...")
@@ -15,8 +16,7 @@ class WorldListener:
 
         requester = ctx.socket(zmq.REQ)
         ip = 'localhost'
-        port = 50020
-        requester.connect('tcp://%s:%s'%(ip, port))
+        requester.connect('tcp://%s:%s'%(ip, self.port))
         requester.send_string('SUB_PORT')
         sub_port = requester.recv_string()
         logger.info("Connecting to port {}".format(sub_port))
@@ -40,3 +40,4 @@ class WorldListener:
             subscriber.close()
             ctx.term()
             logger.warn('Listener is shut down successfully')
+            raise

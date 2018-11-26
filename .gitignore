@@ -24,6 +24,7 @@ capture_settings/
 service_settings/
 player_settings/
 settings/
+custom/nohup.out
 *.db
 *.npy
 *.png
@@ -49,3 +50,4 @@ hmd_cal_data
 
 mprofile_*.dat
 .ipynb_checkpoints/
+.idea/
