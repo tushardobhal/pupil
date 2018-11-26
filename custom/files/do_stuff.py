@@ -26,12 +26,10 @@ class DoStuff:
 
             if pupil_0[2] > self.confidence_threshold and pupil_1[2] > self.confidence_threshold:
                 pupil_loc = self.denormalize(np.mean([pupil_0[1], pupil_1[1]], axis=0), world[1].shape[:-1][::-1], True)
-            elif pupil_0[2] > self.confidence_threshold:
+            elif pupil_0[2] > pupil_1[2]:
                 pupil_loc = self.denormalize(pupil_0[1], world[1].shape[:-1][::-1], True)
-            elif pupil_1[2] > self.confidence_threshold:
-                pupil_loc = self.denormalize(pupil_1[1], world[1].shape[:-1][::-1], True)
             else:
-                pupil_loc = np.array([-1, -1])
+                pupil_loc = self.denormalize(pupil_1[1], world[1].shape[:-1][::-1], True)
 
             cv2.imshow('frame.world_{}'.format(self.glass_id), cv2.circle(world[1], (int(pupil_loc[0]), int(pupil_loc[1])), 5, (0,0,255), -1))
             cv2.waitKey(1)

@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # input parameters to the application
     port_glass_1 = 50020
     port_glass_2 = 50021
-    confidence_threshold = 0.75
+    confidence_threshold = 0.55
 
     # Start glass 1 processes
     world_receiver_1, eye_0_receiver_1, eye_1_receiver_1, do_some_stuff_1 = start_process(1, port_glass_1, common_data_proxy_1)
