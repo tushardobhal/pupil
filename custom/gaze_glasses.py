@@ -13,23 +13,8 @@ from files.pupil import Pupil
 from files.common_data import CommonData
 
 
-def start_process(glass_id, glass_port, common_data_proxy):
+def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy, eye_1_proxy):
     try:
-        BaseManager.register('World', World)
-        manager_world = BaseManager()
-        manager_world.start()
-        world_proxy = manager_world.World()
-
-        BaseManager.register('Pupil_0', Pupil)
-        manager_eye_0 = BaseManager()
-        manager_eye_0.start()
-        eye_0_proxy = manager_eye_0.Pupil_0()
-
-        BaseManager.register('Pupil_1', Pupil)
-        manager_eye_1 = BaseManager()
-        manager_eye_1.start()
-        eye_1_proxy = manager_eye_1.Pupil_1()
-
         world = WorldListener(glass_port)
         eye_0 = EyeListener(0, glass_port)
         eye_1 = EyeListener(1, glass_port)
@@ -51,18 +36,8 @@ def start_process(glass_id, glass_port, common_data_proxy):
     return world_receiver, eye_0_receiver, eye_1_receiver, do_some_stuff
 
 
-def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy):
+def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy):
     try:
-        BaseManager.register('World', World)
-        manager_world = BaseManager()
-        manager_world.start()
-        world_proxy = manager_world.World()
-
-        BaseManager.register('Pupil_0', Pupil)
-        manager_eye_0 = BaseManager()
-        manager_eye_0.start()
-        eye_0_proxy = manager_eye_0.Pupil_0()
-
         world = WorldListener(glass_port)
         eye_0 = EyeListener('0_1', glass_port)
         do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold)
@@ -81,21 +56,13 @@ def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy):
 
 
 def main():
-    BaseManager.register('CommonData_1', CommonData)
-    manager_1 = BaseManager()
-    manager_1.start()
-    common_data_proxy_1 = manager_1.CommonData_1()
-
-    BaseManager.register('CommonData_2', CommonData)
-    manager_2 = BaseManager()
-    manager_2.start()
-    common_data_proxy_2 = manager_2.CommonData_2()
-
-    do_stuff_together = DoStuffTogether()
 
     # Start glass 1 processes
     world_receiver_1, eye_0_receiver_1, eye_1_receiver_1, do_some_stuff_1 = start_process(1, port_glass_1,
-                                                                                          common_data_proxy_1)
+                                                                                          common_data_proxy_1,
+                                                                                          world_proxy_glass_1,
+                                                                                          eye_0_proxy_glass_1,
+                                                                                          eye_1_proxy_glass_1)
     world_receiver_1.start()
     eye_0_receiver_1.start()
     eye_1_receiver_1.start()
@@ -103,7 +70,10 @@ def main():
 
     # Start glass 2 processes
     world_receiver_2, eye_0_receiver_2, eye_1_receiver_2, do_some_stuff_2 = start_process(2, port_glass_2,
-                                                                                          common_data_proxy_2)
+                                                                                          common_data_proxy_2,
+                                                                                          world_proxy_glass_2,
+                                                                                          eye_0_proxy_glass_2,
+                                                                                          eye_1_proxy_glass_2)
     world_receiver_2.start()
     eye_0_receiver_2.start()
     eye_1_receiver_2.start()
@@ -128,28 +98,21 @@ def main():
 
 
 def main_with_combined_eye():
-    BaseManager.register('CommonData_1', CommonData)
-    manager_1 = BaseManager()
-    manager_1.start()
-    common_data_proxy_1 = manager_1.CommonData_1()
-
-    BaseManager.register('CommonData_2', CommonData)
-    manager_2 = BaseManager()
-    manager_2.start()
-    common_data_proxy_2 = manager_2.CommonData_2()
-
-    do_stuff_together = DoStuffTogether()
 
     # Start glass 1 processes
     world_receiver_1, eye_0_receiver_1, do_some_stuff_1 = start_process_with_combined_eye(1, port_glass_1,
-                                                                                          common_data_proxy_1)
+                                                                                          common_data_proxy_1,
+                                                                                          world_proxy_glass_1,
+                                                                                          eye_0_proxy_glass_1)
     world_receiver_1.start()
     eye_0_receiver_1.start()
     do_some_stuff_1.start()
 
     # Start glass 2 processes
     world_receiver_2, eye_0_receiver_2, do_some_stuff_2 = start_process_with_combined_eye(2, port_glass_2,
-                                                                                          common_data_proxy_2)
+                                                                                          common_data_proxy_2,
+                                                                                          world_proxy_glass_2,
+                                                                                          eye_0_proxy_glass_2)
     world_receiver_2.start()
     eye_0_receiver_2.start()
     do_some_stuff_2.start()
@@ -178,6 +141,51 @@ if __name__ == "__main__":
     port_glass_2 = 50021
     confidence_threshold = 0.55
     use_both_eyes = True
+
+    # Proxy objects for common data for both glasses
+    BaseManager.register('CommonData_1', CommonData)
+    manager_1 = BaseManager()
+    manager_1.start()
+    common_data_proxy_1 = manager_1.CommonData_1()
+
+    BaseManager.register('CommonData_2', CommonData)
+    manager_2 = BaseManager()
+    manager_2.start()
+    common_data_proxy_2 = manager_2.CommonData_2()
+
+    # Proxy objects for world and pupil for Glass 1
+    BaseManager.register('World_Glass1', World)
+    manager_world_glass_1 = BaseManager()
+    manager_world_glass_1.start()
+    world_proxy_glass_1 = manager_world_glass_1.World_Glass1()
+
+    BaseManager.register('Pupil_0_Glass1', Pupil)
+    manager_eye_0_glass_1 = BaseManager()
+    manager_eye_0_glass_1.start()
+    eye_0_proxy_glass_1 = manager_eye_0_glass_1.Pupil_0_Glass1()
+
+    BaseManager.register('Pupil_1_Glass1', Pupil)
+    manager_eye_1_glass_1 = BaseManager()
+    manager_eye_1_glass_1.start()
+    eye_1_proxy_glass_1 = manager_eye_1_glass_1.Pupil_1_Glass1()
+
+    # Proxy objects for world and pupil for Glass 2
+    BaseManager.register('World_Glass2', World)
+    manager_world_glass_2 = BaseManager()
+    manager_world_glass_2.start()
+    world_proxy_glass_2 = manager_world_glass_2.World_Glass2()
+
+    BaseManager.register('Pupil_0_Glass2', Pupil)
+    manager_eye_0_glass_2 = BaseManager()
+    manager_eye_0_glass_2.start()
+    eye_0_proxy_glass_2 = manager_eye_0_glass_2.Pupil_0_Glass2()
+
+    BaseManager.register('Pupil_1_Glass2', Pupil)
+    manager_eye_1_glass_2 = BaseManager()
+    manager_eye_1_glass_2.start()
+    eye_1_proxy_glass_2 = manager_eye_1_glass_2.Pupil_1_Glass2()
+
+    do_stuff_together = DoStuffTogether()
 
     if use_both_eyes:
         main()
