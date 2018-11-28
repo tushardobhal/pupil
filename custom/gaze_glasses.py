@@ -1,8 +1,10 @@
-from multiprocessing import Process, Pipe
+from multiprocessing import Process
 from multiprocessing.managers import BaseManager
+import time
 
 from files.world_listener import WorldListener
 from files.eye_listener import EyeListener
+from files.object.object_detect import ObjectDetect
 from files.do_stuff import DoStuff
 from files.do_stuff_with_combined_eye import DoStuffWithCombinedEye
 from files.do_stuff_together import DoStuffTogether
@@ -18,7 +20,7 @@ def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_pr
         world = WorldListener(glass_port)
         eye_0 = EyeListener(0, glass_port)
         eye_1 = EyeListener(1, glass_port)
-        do_stuff = DoStuff(glass_id, confidence_threshold)
+        do_stuff = DoStuff(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
                                  name='frame_world_glass_{}'.format(glass_id))
@@ -40,7 +42,7 @@ def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, wor
     try:
         world = WorldListener(glass_port)
         eye_0 = EyeListener('0_1', glass_port)
-        do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold)
+        do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
                                  name='frame_world_glass_{}'.format(glass_id))
@@ -84,6 +86,9 @@ def main():
                              args=(common_data_proxy_1, common_data_proxy_2), name="do_stuff_together")
     stuff_together.start()
 
+    time.sleep(1)
+    logger.info("Application started successfully")
+
     world_receiver_1.join()
     eye_0_receiver_1.join()
     eye_1_receiver_1.join()
@@ -122,6 +127,9 @@ def main_with_combined_eye():
                              args=(common_data_proxy_1, common_data_proxy_2), name="do_stuff_together")
     stuff_together.start()
 
+    time.sleep(1)
+    logger.info("Application started successfully")
+
     world_receiver_1.join()
     eye_0_receiver_1.join()
     do_some_stuff_1.join()
@@ -141,6 +149,7 @@ if __name__ == "__main__":
     port_glass_2 = 50021
     confidence_threshold = 0.55
     use_both_eyes = True
+    debug = True
 
     # Proxy objects for common data for both glasses
     BaseManager.register('CommonData_1', CommonData)
@@ -184,6 +193,11 @@ if __name__ == "__main__":
     manager_eye_1_glass_2 = BaseManager()
     manager_eye_1_glass_2.start()
     eye_1_proxy_glass_2 = manager_eye_1_glass_2.Pupil_1_Glass2()
+
+    BaseManager.register('ObjectDetect', ObjectDetect)
+    manager_object_detect = BaseManager()
+    manager_object_detect.start()
+    object_detect_proxy = manager_object_detect.ObjectDetect()
 
     do_stuff_together = DoStuffTogether()
 

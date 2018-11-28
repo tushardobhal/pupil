@@ -5,10 +5,12 @@ import cv2
 
 
 class DoStuff:
-    def __init__(self, glass_id, confidence_threshold):
+    def __init__(self, glass_id, confidence_threshold, object_detect, debug):
         self.last_frmae_processed = 0
         self.glass_id = glass_id
         self.confidence_threshold = confidence_threshold
+        self.object_detect = object_detect
+        self.debug = debug
 
     def do_some_stuff(self, world_proxy, eye_0_proxy, eye_1_proxy, common_data_proxy):
         logger.info('Starting Do_Stuff...')
@@ -35,12 +37,31 @@ class DoStuff:
             else:
                 pupil_loc = self.denormalize(pupil_1[1], world[1].shape[:-1][::-1], True)
 
-            cv2.imshow('frame.world_{}'.format(self.glass_id),
-                       cv2.circle(world[1], (int(pupil_loc[0]), int(pupil_loc[1])), 5, (0, 0, 255), -1))
-            cv2.waitKey(1)
+            try:
+                detections = self.object_detect.perform_detect(world[1])
+            except:
+                raise
+
+            if self.debug:
+                self.display_image(detections, pupil_loc, world[1])
+
             self.last_frmae_processed = world[0]
 
             common_data_proxy.set_values(world[0], world[2])
+
+    def display_image(self, detections, pupil_loc, frame):
+        tmp = frame
+        for detection in detections:
+            bounds = detection[2]
+            x1 = bounds[0] - bounds[2] / 2
+            x2 = bounds[0] + bounds[2] / 2
+            y1 = bounds[1] - bounds[3] / 2
+            y2 = bounds[1] + bounds[3] / 2
+            cv2.rectangle(tmp, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
+
+        cv2.imshow('frame.world_{}'.format(self.glass_id),
+                   cv2.circle(tmp, (int(pupil_loc[0]), int(pupil_loc[1])), 5, (0, 0, 255), -1))
+        cv2.waitKey(1)
 
     def denormalize(self, pos, size, flip_y=False):
         width, height = size

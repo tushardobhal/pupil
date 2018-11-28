@@ -1,0 +1,6 @@
+classes= 6
+train  = files/object/data/train.txt
+valid  = files/object/data/val2.txt
+names = files/object/data/obj.names
+backup = files/object/backup/
+
