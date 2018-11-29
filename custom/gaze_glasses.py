@@ -154,7 +154,7 @@ if __name__ == "__main__":
     port_glass_1 = 50020
     port_glass_2 = 50021
     confidence_threshold = 0.55
-    use_both_eyes = False
+    use_both_eyes = True
     debug = True
 
     # Proxy objects for common data for both glasses
@@ -200,6 +200,7 @@ if __name__ == "__main__":
     manager_eye_1_glass_2.start()
     eye_1_proxy_glass_2 = manager_eye_1_glass_2.Pupil_1_Glass2()
 
+    # Object Detection proxy objects
     BaseManager.register('ObjectDetect_Glass_1', ObjectDetect)
     manager_object_detect_glass_1 = BaseManager()
     manager_object_detect_glass_1.start()
