@@ -51,4 +51,4 @@ hmd_cal_data
 mprofile_*.dat
 .ipynb_checkpoints/
 .idea/
-custom/files/object/backup/yolo-obj_7800.weights
+custom/files/object/backup/*

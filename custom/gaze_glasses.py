@@ -17,9 +17,9 @@ from files.common_data import CommonData
 
 def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy, eye_1_proxy):
     try:
-        world = WorldListener(glass_port)
-        eye_0 = EyeListener(0, glass_port)
-        eye_1 = EyeListener(1, glass_port)
+        world = WorldListener(glass_id, glass_port)
+        eye_0 = EyeListener(glass_id, 0, glass_port)
+        eye_1 = EyeListener(glass_id, 1, glass_port)
         do_stuff = DoStuff(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
@@ -40,8 +40,8 @@ def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_pr
 
 def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy):
     try:
-        world = WorldListener(glass_port)
-        eye_0 = EyeListener('0_1', glass_port)
+        world = WorldListener(glass_id, glass_port)
+        eye_0 = EyeListener(glass_id, '', glass_port)
         do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     port_glass_1 = 50020
     port_glass_2 = 50021
     confidence_threshold = 0.55
-    use_both_eyes = True
+    use_both_eyes = False
     debug = True
 
     # Proxy objects for common data for both glasses

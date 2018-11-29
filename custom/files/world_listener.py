@@ -7,7 +7,8 @@ from files.logger import logger
 
 class WorldListener:
 
-    def __init__(self, port_glass_1):
+    def __init__(self, glass_id, port_glass_1):
+        self.glass_id = glass_id
         self.port = port_glass_1
 
     def world_receiver(self, world_proxy):
@@ -34,7 +35,7 @@ class WorldListener:
                 while subscriber.get(zmq.RCVMORE):
                     frame.append(subscriber.recv())
                 frame_data = np.frombuffer(frame[0], dtype=np.uint8).reshape(info['height'], info['width'], 3)
-                world_proxy.set_values(info['index'], frame_data, info['timestamp'])
+                world_proxy.set_values(self.glass_id, info['timestamp'], info['index'], frame_data)
         except:
             requester.close()
             subscriber.close()

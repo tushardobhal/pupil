@@ -6,7 +6,8 @@ from files.logger import logger
 
 class EyeListener:
 
-    def __init__(self, eye_id, port_glass_1):
+    def __init__(self, glass_id, eye_id, port_glass_1):
+        self.glass_id = glass_id
         self.eye_id = eye_id
         self.port = port_glass_1
 
@@ -31,7 +32,7 @@ class EyeListener:
                 topic = subscriber.recv_string()
                 info = serializer.unpackb(subscriber.recv(), encoding='utf-8')
                 # logger.info("Received Topic - {}, Timestamp - {}, Norm_Pos - {}, Confidence - {}".format(topic, info['timestamp'], info['norm_pos'], info['confidence']))
-                eye_proxy.set_values(self.eye_id, info['norm_pos'], info['confidence'], info['timestamp'])
+                eye_proxy.set_values(self.glass_id, info['timestamp'], '0_1', info['norm_pos'], info['confidence'])
         except KeyboardInterrupt:
             requester.close()
             subscriber.close()

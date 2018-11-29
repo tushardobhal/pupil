@@ -2,38 +2,12 @@ import numpy as np
 from numpy.linalg import inv
 import filterpy.kalman
 
-def tracker_4dof(noise=0.02, time=1.0):
-    q = noise
-    dt = time
-    tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)
-    tracker.x = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    tracker.F = np.array([[1., 0., dt, 0., 1 / 2 * (dt ** 2), 0., 1 / 6 * (dt ** 3), 0],
-                          [0., 1., 0., dt, 0., 1 / 2 * (dt ** 2), 0., 1 / 6 * (dt ** 3)],
-                          [0., 0., 1., 0., dt, 0., 1 / 2 * (dt ** 2), 0],
-                          [0., 0., 0., 1., 0, dt, 0., 1 / 2 * (dt ** 2)],
-                          [0., 0., 0., 0., 1., 0., dt, 0.],
-                          [0., 0., 0., 0., 0, 1., 0., dt],
-                          [0., 0., 0., 0., 0, 0., 1., 0.],
-                          [0., 0., 0., 0., 0, 0., 0., 1.]])
-    tracker.H = np.array([[1., 0., 0., 0., 0., 0., 0., 0.],
-                          [0., 1., 0., 0., 0., 0., 0., 0.],])
-    tracker.R = np.array([[1.0, 0],
-                          [0, 1.0]])
-    tracker.P = np.eye(8) * 1000.
-    tracker.Q = np.array([[0., 0., q, 0., q, 0., q, 0.],
-                          [0., 0., 0., q, 0., q, 0., q],
-                          [q, 0., q, 0., q, 0., q, 0.],
-                          [0., q, 0., q, 0., q, 0., q],
-                          [q, 0., q, 0., q, 0., q, 0.],
-                          [0., q, 0., q, 0., q, 0., q],
-                          [q, 0., q, 0., q, 0., q, 0.],
-                          [0., q, 0., q, 0., q, 0., q]])
-    return tracker
+from files.logger import logger
 
 
 class OnlineKalman:
 
-    def __init__(self, kalman_filter, current_state, max_vel=50):
+    def __init__(self, current_state, max_vel=5000):
         """
         kalman_filter: type of kalman filter to use
 
@@ -43,7 +17,7 @@ class OnlineKalman:
         self.eps_max = 0.6
         self.scale = 10
         self.dumb = 0
-        self.kalman = kalman_filter
+        self.kalman = self.tracker_4dof()
 
         self.max_vel = max_vel
 
@@ -75,7 +49,9 @@ class OnlineKalman:
         pt2 = (round(new_state[0], 4),round(new_state[1], 4))
         t2 = new_state[2]
 
-        new_vel = distance(pt1, pt2) / (t2-t1)
+        new_vel = self.distance(pt1, pt2) / (t2-t1)
+
+        logger.info("Velocity - {}".format(new_vel))
 
         if new_vel > self.max_vel:
             return True
@@ -86,6 +62,9 @@ class OnlineKalman:
         """
         new_state: (x,y,t)
         """
+        if self.cur_time == new_state[2]:
+            return new_state
+
         if self.reject_state(new_state):
             self.prev_state = self.cur_state
         else:
@@ -106,5 +85,34 @@ class OnlineKalman:
             self.kalman.Q = self.old_Q
             self.dumb -= 1
 
-        return (self.kalman.x[0], self.kalman.x[1], self.cur_time)
+        logger.info("Received - {}, Predicted - {}".format(new_state, (self.kalman.x[0], self.kalman.x[1])))
+        return self.kalman.x[0], self.kalman.x[1]
 
+    @staticmethod
+    def tracker_4dof(noise=0.02, time=1.0):
+        q = noise
+        dt = time
+        tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)
+        tracker.x = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        tracker.F = np.array([[1., 0., dt, 0., 1 / 2 * (dt ** 2), 0., 1 / 6 * (dt ** 3), 0],
+                              [0., 1., 0., dt, 0., 1 / 2 * (dt ** 2), 0., 1 / 6 * (dt ** 3)],
+                              [0., 0., 1., 0., dt, 0., 1 / 2 * (dt ** 2), 0],
+                              [0., 0., 0., 1., 0, dt, 0., 1 / 2 * (dt ** 2)],
+                              [0., 0., 0., 0., 1., 0., dt, 0.],
+                              [0., 0., 0., 0., 0, 1., 0., dt],
+                              [0., 0., 0., 0., 0, 0., 1., 0.],
+                              [0., 0., 0., 0., 0, 0., 0., 1.]])
+        tracker.H = np.array([[1., 0., 0., 0., 0., 0., 0., 0.],
+                              [0., 1., 0., 0., 0., 0., 0., 0.], ])
+        tracker.R = np.array([[1.0, 0],
+                              [0, 1.0]])
+        tracker.P = np.eye(8) * 1000.
+        tracker.Q = np.array([[0., 0., q, 0., q, 0., q, 0.],
+                              [0., 0., 0., q, 0., q, 0., q],
+                              [q, 0., q, 0., q, 0., q, 0.],
+                              [0., q, 0., q, 0., q, 0., q],
+                              [q, 0., q, 0., q, 0., q, 0.],
+                              [0., q, 0., q, 0., q, 0., q],
+                              [q, 0., q, 0., q, 0., q, 0.],
+                              [0., q, 0., q, 0., q, 0., q]])
+        return tracker
