@@ -66,7 +66,7 @@ class DoStuff:
             cv2.rectangle(tmp, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
 
         cv2.imshow('frame.world_{}'.format(self.glass_id),
-                   cv2.circle(tmp, (int(pupil_loc[0]), int(pupil_loc[1])), 5, (0, 0, 255), -1))
+                   cv2.circle(tmp, (int(pupil_loc[0]), int(pupil_loc[1])), 15, (0, 0, 255), -1))
         cv2.waitKey(1)
 
     def denormalize(self, pos, size, flip_y=False):

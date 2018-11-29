@@ -7,7 +7,7 @@ from files.logger import logger
 
 class OnlineKalman:
 
-    def __init__(self, current_state, max_vel=5000):
+    def __init__(self, current_state, max_vel=1000):
         """
         kalman_filter: type of kalman filter to use
 
@@ -34,6 +34,7 @@ class OnlineKalman:
         elif self.dumb > 0:
             self.kalman.Q = self.old_Q
             self.dumb -= 1
+        logger.info("Initialised Kalman")
 
     @staticmethod
     def distance(c1, c2):
@@ -65,11 +66,12 @@ class OnlineKalman:
         if self.cur_time == new_state[2]:
             return new_state
 
-        if self.reject_state(new_state):
-            self.prev_state = self.cur_state
-        else:
-            self.prev_state = (new_state[0], new_state[1])
+        # if self.reject_state(new_state):
+        #     self.prev_state = self.cur_state
+        # else:
+        #     self.prev_state = (new_state[0], new_state[1])
 
+        self.prev_state = (new_state[0], new_state[1])
         self.cur_time = new_state[2]
 
         self.kalman.predict()
@@ -85,11 +87,11 @@ class OnlineKalman:
             self.kalman.Q = self.old_Q
             self.dumb -= 1
 
-        logger.info("Received - {}, Predicted - {}".format(new_state, (self.kalman.x[0], self.kalman.x[1])))
-        return self.kalman.x[0], self.kalman.x[1]
+        logger.info("Received - {}, Predicted - {}".format(new_state, self.cur_state))
+        return self.cur_state
 
     @staticmethod
-    def tracker_4dof(noise=0.02, time=1.0):
+    def tracker_4dof(noise=0.03, time=6.0):
         q = noise
         dt = time
         tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)
