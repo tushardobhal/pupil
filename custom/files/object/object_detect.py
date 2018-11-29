@@ -10,8 +10,8 @@ class ObjectDetect:
     def __init__(self):
         self.thresh = 0.25
         self.dark_net_path = "files/object/darknet.so"
-        self.config_path = "files/object/cfg/yolo-obj.cfg"
-        self.weight_path = "files/object/backup/yolo-obj_7800.weights"
+        self.config_path = "files/object/cfg/yolov3-tiny.cfg"
+        self.weight_path = "files/object/backup/yolov3-tiny.weights"
         self.meta_path = "files/object/data/obj.data"
 
         self.net_main = None

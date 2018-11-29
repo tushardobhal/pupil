@@ -43,8 +43,7 @@ class DoStuff:
                 self.kalman = OnlineKalman((pupil_loc[0], pupil_loc[1], world[1]))
 
             try:
-                # detections = self.object_detect.perform_detect(world[3])
-                detections = []
+                detections = self.object_detect.perform_detect(world[3])
                 pupil_loc_filtered = self.kalman.predict((pupil_loc[0], pupil_loc[1], world[1]))
             except Exception as e:
                 raise e

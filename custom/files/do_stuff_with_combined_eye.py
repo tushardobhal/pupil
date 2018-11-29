@@ -34,7 +34,6 @@ class DoStuffWithCombinedEye:
 
             try:
                 detections = self.object_detect.perform_detect(world[3])
-                # detections = []
                 pupil_loc_filtered = self.kalman.predict((pupil_loc[0], pupil_loc[1], world[1]))
             except Exception as e:
                 raise e

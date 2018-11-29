@@ -15,11 +15,12 @@ from files.pupil import Pupil
 from files.common_data import CommonData
 
 
-def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy, eye_1_proxy):
+def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy, eye_1_proxy, object_detect_proxy):
     try:
         world = WorldListener(glass_id, glass_port)
         eye_0 = EyeListener(glass_id, 0, glass_port)
         eye_1 = EyeListener(glass_id, 1, glass_port)
+
         do_stuff = DoStuff(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
@@ -38,10 +39,11 @@ def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_pr
     return world_receiver, eye_0_receiver, eye_1_receiver, do_some_stuff
 
 
-def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy):
+def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_proxy, object_detect_proxy):
     try:
         world = WorldListener(glass_id, glass_port)
         eye_0 = EyeListener(glass_id, '', glass_port)
+
         do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
@@ -64,7 +66,8 @@ def main():
                                                                                           common_data_proxy_1,
                                                                                           world_proxy_glass_1,
                                                                                           eye_0_proxy_glass_1,
-                                                                                          eye_1_proxy_glass_1)
+                                                                                          eye_1_proxy_glass_1,
+                                                                                          object_detect_proxy_glass_1)
     world_receiver_1.start()
     eye_0_receiver_1.start()
     eye_1_receiver_1.start()
@@ -75,7 +78,8 @@ def main():
                                                                                           common_data_proxy_2,
                                                                                           world_proxy_glass_2,
                                                                                           eye_0_proxy_glass_2,
-                                                                                          eye_1_proxy_glass_2)
+                                                                                          eye_1_proxy_glass_2,
+                                                                                          object_detect_proxy_glass_2)
     world_receiver_2.start()
     eye_0_receiver_2.start()
     eye_1_receiver_2.start()
@@ -108,7 +112,8 @@ def main_with_combined_eye():
     world_receiver_1, eye_0_receiver_1, do_some_stuff_1 = start_process_with_combined_eye(1, port_glass_1,
                                                                                           common_data_proxy_1,
                                                                                           world_proxy_glass_1,
-                                                                                          eye_0_proxy_glass_1)
+                                                                                          eye_0_proxy_glass_1,
+                                                                                          object_detect_proxy_glass_1)
     world_receiver_1.start()
     eye_0_receiver_1.start()
     do_some_stuff_1.start()
@@ -117,7 +122,8 @@ def main_with_combined_eye():
     world_receiver_2, eye_0_receiver_2, do_some_stuff_2 = start_process_with_combined_eye(2, port_glass_2,
                                                                                           common_data_proxy_2,
                                                                                           world_proxy_glass_2,
-                                                                                          eye_0_proxy_glass_2)
+                                                                                          eye_0_proxy_glass_2,
+                                                                                          object_detect_proxy_glass_2)
     world_receiver_2.start()
     eye_0_receiver_2.start()
     do_some_stuff_2.start()
@@ -194,10 +200,15 @@ if __name__ == "__main__":
     manager_eye_1_glass_2.start()
     eye_1_proxy_glass_2 = manager_eye_1_glass_2.Pupil_1_Glass2()
 
-    BaseManager.register('ObjectDetect', ObjectDetect)
-    manager_object_detect = BaseManager()
-    manager_object_detect.start()
-    object_detect_proxy = manager_object_detect.ObjectDetect()
+    BaseManager.register('ObjectDetect_Glass_1', ObjectDetect)
+    manager_object_detect_glass_1 = BaseManager()
+    manager_object_detect_glass_1.start()
+    object_detect_proxy_glass_1 = manager_object_detect_glass_1.ObjectDetect_Glass_1()
+
+    BaseManager.register('ObjectDetect_Glass_2', ObjectDetect)
+    manager_object_detect_glass_2 = BaseManager()
+    manager_object_detect_glass_2.start()
+    object_detect_proxy_glass_2 = manager_object_detect_glass_2.ObjectDetect_Glass_2()
 
     do_stuff_together = DoStuffTogether()
 
