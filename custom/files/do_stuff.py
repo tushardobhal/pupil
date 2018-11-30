@@ -12,6 +12,7 @@ class DoStuff:
         self.confidence_threshold = confidence_threshold
         self.object_detect = object_detect
         self.kalman = None
+        self.run_length = None
         self.debug = debug
 
     def do_some_stuff(self, world_proxy, eye_0_proxy, eye_1_proxy, common_data_proxy):
@@ -53,7 +54,8 @@ class DoStuff:
 
             self.last_frame_processed = world[2]
 
-            common_data_proxy.set_values(world[2], world[1])
+            run_length_output = []
+            common_data_proxy.set_values(self.glass_id, world[1], world[2], run_length_output)
 
     def display_image(self, detections, pupil_loc, frame):
         tmp = frame
