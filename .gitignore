@@ -52,3 +52,4 @@ mprofile_*.dat
 .ipynb_checkpoints/
 .idea/
 custom/files/object/backup/*
+custom/test/*
