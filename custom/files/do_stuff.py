@@ -1,5 +1,4 @@
 from files.logger import logger
-from files.kalman import OnlineKalman
 
 import numpy as np
 import cv2
@@ -11,7 +10,6 @@ class DoStuff:
         self.glass_id = glass_id
         self.confidence_threshold = confidence_threshold
         self.object_detect = object_detect
-        self.kalman = None
         self.debug = debug
 
     def do_some_stuff(self, world_proxy, eye_0_proxy, eye_1_proxy, common_data_proxy):
@@ -33,23 +31,20 @@ class DoStuff:
                                                                                      pupil_1[1]))
 
             if pupil_0[4] > self.confidence_threshold and pupil_1[4] > self.confidence_threshold:
-                pupil_loc = self.denormalize(np.mean([pupil_0[3], pupil_1[3]], axis=0), world[3].shape[:-1][::-1], True)
+                pupil_loc = np.mean([pupil_0[3], pupil_1[3]], axis=0)
             elif pupil_0[4] > pupil_1[4]:
-                pupil_loc = self.denormalize(pupil_0[3], world[3].shape[:-1][::-1], True)
+                pupil_loc = pupil_0[3]
             else:
-                pupil_loc = self.denormalize(pupil_1[3], world[3].shape[:-1][::-1], True)
-
-            if self.kalman is None:
-                self.kalman = OnlineKalman((pupil_loc[0], pupil_loc[1], world[1]))
+                pupil_loc = pupil_1[3]
 
             try:
                 detections = self.object_detect.perform_detect(world[3])
-                pupil_loc_filtered = self.kalman.predict((pupil_loc[0], pupil_loc[1], world[1]))
+
             except Exception as e:
                 raise e
 
             if self.debug:
-                self.display_image(detections, pupil_loc_filtered, world[3])
+                self.display_image(detections, pupil_loc, world[3])
 
             self.last_frame_processed = world[2]
 
@@ -68,13 +63,3 @@ class DoStuff:
         cv2.imshow('frame.world_{}'.format(self.glass_id),
                    cv2.circle(tmp, (int(pupil_loc[0]), int(pupil_loc[1])), 15, (0, 0, 255), -1))
         cv2.waitKey(1)
-
-    def denormalize(self, pos, size, flip_y=False):
-        width, height = size
-        x = pos[0]
-        y = pos[1]
-        x *= width
-        if flip_y:
-            y = 1 - y
-        y *= height
-        return x, y

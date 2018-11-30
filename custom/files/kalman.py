@@ -7,7 +7,7 @@ from files.logger import logger
 
 class OnlineKalman:
 
-    def __init__(self, current_state, max_vel=1000):
+    def __init__(self, current_state, max_vel=20000):
         """
         kalman_filter: type of kalman filter to use
 
@@ -50,7 +50,7 @@ class OnlineKalman:
         pt2 = (round(new_state[0], 4),round(new_state[1], 4))
         t2 = new_state[2]
 
-        new_vel = self.distance(pt1, pt2) / (t2-t1)
+        new_vel = np.abs(self.distance(pt1, pt2) / (t2-t1))
 
         logger.info("Velocity - {}".format(new_vel))
 
@@ -66,12 +66,11 @@ class OnlineKalman:
         if self.cur_time == new_state[2]:
             return new_state
 
-        # if self.reject_state(new_state):
-        #     self.prev_state = self.cur_state
-        # else:
-        #     self.prev_state = (new_state[0], new_state[1])
+        if self.reject_state(new_state):
+            self.prev_state = self.cur_state
+        else:
+            self.prev_state = (new_state[0], new_state[1])
 
-        self.prev_state = (new_state[0], new_state[1])
         self.cur_time = new_state[2]
 
         self.kalman.predict()
@@ -91,7 +90,7 @@ class OnlineKalman:
         return self.cur_state
 
     @staticmethod
-    def tracker_4dof(noise=0.03, time=6.0):
+    def tracker_4dof(noise=0.03, time=2.0):
         q = noise
         dt = time
         tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)
