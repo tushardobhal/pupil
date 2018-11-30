@@ -153,7 +153,7 @@ if __name__ == "__main__":
     # input parameters to the application
     port_glass_1 = 50020
     port_glass_2 = 50021
-    confidence_threshold = 0.55
+    confidence_threshold = 0.80
     num_objects = 6
     use_both_eyes = True
     debug = True
