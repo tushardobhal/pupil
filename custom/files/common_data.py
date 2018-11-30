@@ -1,15 +1,19 @@
 class CommonData:
 
     def __init__(self):
-        self.index = None
+        self.glass_id = None
         self.timestamp = None
+        self.index = None
+        self.run_length_output = None
 
-    def set_values(self, index, timestamp):
-        self.index = index
+    def set_values(self, glass_id, timestamp, index, run_length_output):
+        self.glass_id = glass_id
         self.timestamp = timestamp
+        self.index = index
+        self.run_length_output = run_length_output
 
     def get_values(self):
-        return self.index, self.timestamp
+        return self.glass_id, self.timestamp, self.index, self.run_length_output
 
     def __repr__(self):
         return str(self.__dict__)

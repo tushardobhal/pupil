@@ -1,3 +1,5 @@
+import sys
+
 from files.logger import logger
 
 
@@ -14,11 +16,20 @@ class DoStuffTogether:
             common_data_1 = common_data_proxy_1.get_values()
             common_data_2 = common_data_proxy_2.get_values()
             if common_data_1[0] is None or common_data_2[0] is None or (
-                    common_data_1[0] == self.last_frame_index_1 and common_data_2[0] == self.last_frame_index_2):
+                    common_data_1[2] == self.last_frame_index_1 and common_data_2[2] == self.last_frame_index_2):
                 continue
 
             logger.info("Glass_1 Frame - {}, Glass_2 Frame - {}, Glass_1 Timestamp - {}, Glass_2 Timestamp - {}".format(
-                common_data_1[0], common_data_2[0], common_data_1[1], common_data_2[1]))
+                common_data_1[2], common_data_2[2], common_data_1[1], common_data_2[1]))
+
+            if common_data_1[3] == common_data_2[3]:
+                logger.log("Look Detected")
+                play_sound()
 
             self.last_frame_index_1 = common_data_1[0]
             self.last_frame_index_2 = common_data_2[0]
+
+
+def play_sound():
+    sys.stdout.write('\a')
+

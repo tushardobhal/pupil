@@ -21,7 +21,7 @@ def start_process(glass_id, glass_port, common_data_proxy, world_proxy, eye_0_pr
         eye_0 = EyeListener(glass_id, 0, glass_port)
         eye_1 = EyeListener(glass_id, 1, glass_port)
 
-        do_stuff = DoStuff(glass_id, confidence_threshold, object_detect_proxy, debug)
+        do_stuff = DoStuff(glass_id, confidence_threshold, num_objects, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
                                  name='frame_world_glass_{}'.format(glass_id))
@@ -44,7 +44,7 @@ def start_process_with_combined_eye(glass_id, glass_port, common_data_proxy, wor
         world = WorldListener(glass_id, glass_port)
         eye_0 = EyeListener(glass_id, '', glass_port)
 
-        do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold, object_detect_proxy, debug)
+        do_stuff = DoStuffWithCombinedEye(glass_id, confidence_threshold, num_objects, object_detect_proxy, debug)
 
         world_receiver = Process(target=world.world_receiver, args=(world_proxy,),
                                  name='frame_world_glass_{}'.format(glass_id))
@@ -154,6 +154,7 @@ if __name__ == "__main__":
     port_glass_1 = 50020
     port_glass_2 = 50021
     confidence_threshold = 0.55
+    num_objects = 6
     use_both_eyes = True
     debug = True
 
