@@ -44,7 +44,7 @@ class DoStuff:
 
             try:
                 detections = self.object_detect.perform_detect(world[3])
-
+                detections = denormalize_detections(detections)
             except Exception as e:
                 raise e
 
@@ -63,20 +63,23 @@ class DoStuff:
         y = pupil_loc[1]
 
         for detection in detections:
-            label = detection[0]
-            x1 = detection[2][0] - detection[2][2] / 2
-            x2 = detection[2][0] + detection[2][2] / 2
-            y1 = detection[2][1] - detection[2][3] / 2
-            y2 = detection[2][1] + detection[2][3] / 2
+            index = self.object_detect.get_alt_names().index(detection[0])
+            bounds = detection[2]
+            x1 = bounds[0] - bounds[2] / 2
+            x2 = bounds[0] + bounds[2] / 2
+            y1 = bounds[1] - bounds[3] / 2
+            y2 = bounds[1] + bounds[3] / 2
 
             yin = (y1 <= y <= y2)
             xin = (x1 <= x <= x2)
             if xin and yin:
-                hit[label] = 1
+                hit[index] = 1
                 break
 
         for i in range(0, self.num_objects):
             output[i] = self.run_length_filter[i].update_run_length_filter(hit[i])
+
+        logger.info("Run length output - {}".format(output))
         return output
 
     def display_image(self, detections, pupil_loc, frame):
@@ -89,6 +92,29 @@ class DoStuff:
             y2 = bounds[1] + bounds[3] / 2
             cv2.rectangle(tmp, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
 
+            label = detection[0] + ' - ' + str(round(detection[1], 4))
+            cv2.putText(tmp, text=label, org=(int(x1), int(y1)), fontFace=3, fontScale=.5, color=(255, 0, 0), thickness=1)
+
         cv2.imshow('frame.world_{}'.format(self.glass_id),
                    cv2.circle(tmp, (int(pupil_loc[0]), int(pupil_loc[1])), 15, (0, 0, 255), -1))
         cv2.waitKey(1)
+
+
+def denormalize_detections(detections):
+    if detections is None or len(detections) == 0:
+        return detections
+
+    detections_new = []
+    x_norm_base = 1280/416
+    y_norm_base = 720/416
+    for detection in detections:
+        bounds = detection[2]
+        x1 = bounds[0] * x_norm_base
+        y1 = bounds[1] * y_norm_base
+        width = bounds[2] * x_norm_base
+        height = bounds[3] * y_norm_base
+        bounds_new = (x1, y1, width, height)
+
+        detections_new.append((detection[0], detection[1], bounds_new))
+
+    return detections_new

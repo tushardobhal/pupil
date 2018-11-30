@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 
 
-class DoStuff:
+class DoStuffWithCombinedEye:
     def __init__(self, glass_id, confidence_threshold, num_objects, object_detect, debug):
         self.last_frame_processed = 0
         self.glass_id = glass_id

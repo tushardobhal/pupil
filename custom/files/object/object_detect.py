@@ -8,10 +8,10 @@ from files.logger import logger
 class ObjectDetect:
 
     def __init__(self):
-        self.thresh = 0.25
+        self.thresh = 0.30
         self.dark_net_path = "files/object/darknet.so"
         self.config_path = "files/object/cfg/yolov3-tiny_obj.cfg"
-        self.weight_path = "files/object/backup/yolov3-tiny_obj_7300.weights"
+        self.weight_path = "files/object/backup/yolov3-tiny_obj.weights"
         self.meta_path = "files/object/data/obj.data"
 
         self.net_main = None
@@ -201,6 +201,9 @@ class ObjectDetect:
             pass
 
         logger.info("Initialized Object Detection...")
+
+    def get_alt_names(self):
+        return self.alt_names
 
 
 class BOX(Structure):

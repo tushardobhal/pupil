@@ -66,10 +66,10 @@ class OnlineKalman:
         if self.cur_time == new_state[2]:
             return new_state
 
-        if self.reject_state(new_state):
-            self.prev_state = self.cur_state
-        else:
-            self.prev_state = (new_state[0], new_state[1])
+        # if self.reject_state(new_state):
+        #     self.prev_state = self.cur_state
+        # else:
+        self.prev_state = (new_state[0], new_state[1])
 
         self.cur_time = new_state[2]
 
@@ -90,7 +90,7 @@ class OnlineKalman:
         return self.cur_state
 
     @staticmethod
-    def tracker_4dof(noise=0.03, time=2.0):
+    def tracker_4dof(noise=0.03, time=1.0):
         q = noise
         dt = time
         tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)
