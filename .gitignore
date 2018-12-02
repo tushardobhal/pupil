@@ -28,7 +28,7 @@ custom/nohup.out
 *.db
 *.npy
 *.png
-*.log
+*.log*
 
 
 # IDE generated files #
