@@ -37,5 +37,22 @@ Objects -
 
 Running the code - 
 
-./start.sh - This will start the program and will initialize all the processes and the Yolov3-tiny object detector. This will display the layers of the object detector that is being loaded. Press any button after 
+ - ./start.sh - This will start the program and will initialize all the processes and the Yolov3-tiny object detector. This will display the layers of the object detector that is being loaded. Press any button after the layers are loaded for both object detectors. 
+
+The logs are stored in the file gaze_glasses.log - The lines are recorded as follows - 
+2018-11-30 15:11:39,897 | [gaze_1_glass_1] | [kalman.py predict] | [INFO] - Received - (94.88047217632311, 693.0068082153607, 15775.377153), Predicted - (94.88047217632311, 693.0068082153607)
+
+	a. 2018-11-30 15:11:39,897 - time when the log is recorded
+	b. [gaze_1_glass_1] - the thread name that is printitng this log line. The names of the thread can be seen when we define the process in gaze_glass.py
+	c. kalman.py - this is the python file where the log line is printed
+	d. predict - this is the method name where the log line is located
+	e. INFO - this refers to information. Others include, DEBUG and WARN and ERROR
+	f. Next the line is printed.
+
+To search for the information that is processed from both glasses after the run_length filter - 
+grep "do_stuff_together" gaze_glasses.log
+
+- Then start both the processes of both glasses by running the following command in separate kernel - 
+python3 main.py
+Next, in the pupi labs' 'world frame' that is started second, change it's port number to 50021. The code assumes the ports to be 50020 and 50021. Once all 3 programs are up, we can see the world frames and the pupil dots with the objects' bounding boxes.   
 

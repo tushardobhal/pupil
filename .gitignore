@@ -53,3 +53,4 @@ mprofile_*.dat
 .idea/
 custom/files/object/backup/*
 custom/test/*
+nohup.out
