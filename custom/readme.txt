@@ -54,5 +54,15 @@ grep "do_stuff_together" gaze_glasses.log
 
 - Then start both the processes of both glasses by running the following command in separate kernel - 
 python3 main.py
-Next, in the pupi labs' 'world frame' that is started second, change it's port number to 50021. The code assumes the ports to be 50020 and 50021. Once all 3 programs are up, we can see the world frames and the pupil dots with the objects' bounding boxes.   
+Next, in the pupi labs' 'world frame' that is started second, change it's port number to 50021. The code assumes the ports to be 50020 and 50021. Once all 3 programs are up, we can see the world frames and the pupil dots with the objects' bounding boxes. 
+
+Running the Android App and Listener - 
+
+1. Launch the app called PushButton. 
+2. To launch the receiver, go to ~/gaze_glasses/MQReceiver
+3. Launch ./start.sh to start the MQReceiver, ./stop.sh to stop it
+4. The logs are stored in console.log. The application is started when the following log is printed - 
+	2018-14-11 23:14:12.638 [main] INFO  com.ece.ucsd.rabbitmq.Receiver - Connecting to RabbitMQ server - amqp://vgocndla:xP3XY98IZenywMYEVGcg3TDl-Hqie-h6@otter.rmq.cloudamqp.com/vgocndla
+	2018-14-11 23:14:12.858 [main] INFO  com.ece.ucsd.rabbitmq.Receiver - Listener started. Waiting for messages...
+   
 

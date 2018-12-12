@@ -54,3 +54,4 @@ mprofile_*.dat
 custom/files/object/backup/*
 custom/test/*
 nohup.out
+custom/looks.csv
