@@ -8,7 +8,7 @@ from files.logger import logger
 class ObjectDetect:
 
     def __init__(self):
-        self.thresh = 0.30
+        self.thresh = 0.25
         self.dark_net_path = "files/object/darknet.so"
         self.config_path = "files/object/cfg/yolov3-tiny_obj.cfg"
         self.weight_path = "files/object/backup/yolov3-tiny_obj.weights"
@@ -79,7 +79,8 @@ class ObjectDetect:
                     else:
                         nameTag = self.alt_names[i]
 
-                    res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w+(1-dets[j].prob[i]/100)*25, b.h+(1-dets[j].prob[i]/100)*25)))
+                    # res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w+(1-dets[j].prob[i]/100)*25, b.h+(1-dets[j].prob[i]/100)*25)))
+                    res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w, b.h)))
         res = sorted(res, key=lambda x: -x[1])
         # free_image(im)
         self.free_detections(dets, num)

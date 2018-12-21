@@ -35,7 +35,7 @@ class DoStuffWithCombinedEye:
 
             try:
                 detections = self.object_detect.perform_detect(world[3])
-                detections = denormalize_detections(detections)
+                detections = denormalize_detections(detections, pupil_0[4])
             except Exception as e:
                 raise e
 
@@ -91,7 +91,7 @@ class DoStuffWithCombinedEye:
         cv2.waitKey(1)
 
 
-def denormalize_detections(detections):
+def denormalize_detections(detections, confidence):
     if detections is None or len(detections) == 0:
         return detections
 
@@ -103,7 +103,14 @@ def denormalize_detections(detections):
         x1 = bounds[0] * x_norm_base
         y1 = bounds[1] * y_norm_base
         width = bounds[2] * x_norm_base
-        height = bounds[3] * y_norm_base
+        height = bounds[3] * y_norm_base + (1-confidence/100)*25
+        if detection[0] == 0 or detection[0] == 4 or detection[0] == 5:
+            width = width + (1-confidence/100)*15
+            height = height + (1-confidence/100)*15
+        else:
+            width = width + (1 - confidence / 100) * 30
+            height = height + (1 - confidence / 100) * 30
+
         bounds_new = (x1, y1, width, height)
 
         detections_new.append((detection[0], detection[1], bounds_new))
