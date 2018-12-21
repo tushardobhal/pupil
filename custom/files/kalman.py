@@ -90,7 +90,7 @@ class OnlineKalman:
         return self.cur_state
 
     @staticmethod
-    def tracker_4dof(noise=0.1, time=1.0):
+    def tracker_4dof(noise=0.2, time=2.0):
         q = noise
         dt = time
         tracker = filterpy.kalman.KalmanFilter(dim_x=8, dim_z=2)

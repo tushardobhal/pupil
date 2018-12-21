@@ -79,7 +79,7 @@ class ObjectDetect:
                     else:
                         nameTag = self.alt_names[i]
 
-                    res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w, b.h)))
+                    res.append((nameTag, dets[j].prob[i], (b.x, b.y, b.w+(1-dets[j].prob[i]/100)*25, b.h+(1-dets[j].prob[i]/100)*25)))
         res = sorted(res, key=lambda x: -x[1])
         # free_image(im)
         self.free_detections(dets, num)

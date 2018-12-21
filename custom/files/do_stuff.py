@@ -86,10 +86,13 @@ class DoStuff:
         tmp = frame
         for detection in detections:
             bounds = detection[2]
-            x1 = bounds[0] - bounds[2] / 2
-            x2 = bounds[0] + bounds[2] / 2
-            y1 = bounds[1] - bounds[3] / 2
-            y2 = bounds[1] + bounds[3] / 2
+            confidence=detection[1]
+            width=bounds[2]
+            height=bounds[3]
+            x1 = bounds[0] - width / 2
+            x2 = bounds[0] + width / 2
+            y1 = bounds[1] - height / 2
+            y2 = bounds[1] + height / 2
             cv2.rectangle(tmp, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
 
             label = detection[0] + ' - ' + str(round(detection[1], 4))
