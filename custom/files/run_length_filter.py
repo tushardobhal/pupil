@@ -1,7 +1,7 @@
 class RunLengthFilter:
     def __init__(self):
         self.cur_state = 1
-        self.total_num_states = 6
+        self.total_num_states = 8
 
     def update_run_length_filter(self, hit):
         if 1 <= self.cur_state <= (self.total_num_states / 2 - 1):

@@ -26,10 +26,10 @@ class DoStuffWithCombinedEye:
 
             if world[0] is None or pupil_0[0] is None or self.last_frame_processed == world[2]:
                 continue
-            logger.info("Frame - {}, Timestamp - {}".format(world[2], world[1]))
-            logger.info(
-                "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_0[2], pupil_0[3], pupil_0[4],
-                                                                                     pupil_0[1]))
+            # logger.info("Frame - {}, Timestamp - {}".format(world[2], world[1]))
+            # logger.info(
+            #     "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_0[2], pupil_0[3], pupil_0[4],
+            #                                                                          pupil_0[1]))
 
             pupil_loc = pupil_0[3]
 
@@ -45,7 +45,7 @@ class DoStuffWithCombinedEye:
             self.last_frame_processed = world[2]
 
             run_length_output = self.perform_run_length(detections, pupil_loc)
-            common_data_proxy.set_values(self.glass_id, world[1], world[2], run_length_output)
+            common_data_proxy.set_values(self.glass_id, world[1], world[2], run_length_output[0], run_length_output[1])
 
     def perform_run_length(self, detections, pupil_loc):
         output = [0] * self.num_objects
@@ -70,8 +70,8 @@ class DoStuffWithCombinedEye:
         for i in range(0, self.num_objects):
             output[i] = self.run_length_filter[i].update_run_length_filter(hit[i])
 
-        logger.info("Run length output - {}".format(output))
-        return output
+        # logger.info("Run length output - {}".format(output))
+        return output, hit
 
     def display_image(self, detections, pupil_loc, frame):
         tmp = frame

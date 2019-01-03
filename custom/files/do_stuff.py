@@ -27,13 +27,13 @@ class DoStuff:
 
             if world[0] is None or pupil_0[0] is None or pupil_1[0] is None or self.last_frame_processed == world[2]:
                 continue
-            logger.info("Frame - {}, Timestamp - {}".format(world[2], world[1]))
-            logger.info(
-                "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_0[2], pupil_0[3], pupil_0[4],
-                                                                                     pupil_0[1]))
-            logger.info(
-                "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_1[2], pupil_1[3], pupil_1[4],
-                                                                                     pupil_1[1]))
+            # logger.info("Frame - {}, Timestamp - {}".format(world[2], world[1]))
+            # logger.info(
+            #     "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_0[2], pupil_0[3], pupil_0[4],
+            #                                                                          pupil_0[1]))
+            # logger.info(
+            #     "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_1[2], pupil_1[3], pupil_1[4],
+            #                                                                          pupil_1[1]))
 
             if pupil_0[4] > self.confidence_threshold and pupil_1[4] > self.confidence_threshold:
                 pupil_loc = np.mean([pupil_0[3], pupil_1[3]], axis=0)
@@ -57,7 +57,7 @@ class DoStuff:
             self.last_frame_processed = world[2]
 
             run_length_output = self.perform_run_length(detections, pupil_loc)
-            common_data_proxy.set_values(self.glass_id, world[1], world[2], run_length_output)
+            common_data_proxy.set_values(self.glass_id, world[1], world[2], run_length_output[0], run_length_output[1])
 
     def perform_run_length(self, detections, pupil_loc):
         output = [0] * self.num_objects
@@ -82,20 +82,17 @@ class DoStuff:
         for i in range(0, self.num_objects):
             output[i] = self.run_length_filter[i].update_run_length_filter(hit[i])
 
-        logger.info("Run length output - {}".format(output))
-        return output
+        # logger.info("Run length output - {}".format(output))
+        return output, hit
 
     def display_image(self, detections, pupil_loc, frame):
         tmp = frame
         for detection in detections:
             bounds = detection[2]
-            confidence=detection[1]
-            width=bounds[2]
-            height=bounds[3]
-            x1 = bounds[0] - width / 2
-            x2 = bounds[0] + width / 2
-            y1 = bounds[1] - height / 2
-            y2 = bounds[1] + height / 2
+            x1 = bounds[0] - bounds[2] / 2
+            x2 = bounds[0] + bounds[2] / 2
+            y1 = bounds[1] - bounds[3] / 2
+            y2 = bounds[1] + bounds[3] / 2
             cv2.rectangle(tmp, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
 
             label = detection[0] + ' - ' + str(round(detection[1], 4))

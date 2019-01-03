@@ -155,7 +155,7 @@ if __name__ == "__main__":
     port_glass_2 = 50021
     confidence_threshold = 0.80
     num_objects = 6
-    use_both_eyes = False
+    use_both_eyes = True
     debug = True
 
     # Proxy objects for common data for both glasses

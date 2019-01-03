@@ -52,7 +52,7 @@ class OnlineKalman:
 
         new_vel = np.abs(self.distance(pt1, pt2) / (t2-t1))
 
-        logger.info("Velocity - {}".format(new_vel))
+        # logger.info("Velocity - {}".format(new_vel))
 
         if new_vel > self.max_vel:
             return True
@@ -86,7 +86,7 @@ class OnlineKalman:
             self.kalman.Q = self.old_Q
             self.dumb -= 1
 
-        logger.info("Received - {}, Predicted - {}".format(new_state, self.cur_state))
+        # logger.info("Received - {}, Predicted - {}".format(new_state, self.cur_state))
         return self.cur_state
 
     @staticmethod
