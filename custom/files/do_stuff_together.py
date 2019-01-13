@@ -28,8 +28,8 @@ class DoStuffTogether:
 
             common_look_time = int(time.time() * 1000)
             logger_run_length.info(
-                ";time-{};Glass1_hit_scan_output-{};Glass2_hit_scan_output-{};Glass1_run_length_output-{};Glass2_run_length_output-{}".format(
-                    common_look_time, common_data_1[4], common_data_2[4], common_data_1[3], common_data_2[3]))
+                ";time-{};Glass1_hit_scan_output-{};Glass2_hit_scan_output-{};Glass1_run_length_output-{};Glass2_run_length_output-{};Frame1-{};Frame2-{}".format(
+                    common_look_time, common_data_1[4], common_data_2[4], common_data_1[3], common_data_2[3], common_data_1[2], common_data_2[2]))
 
             if common_data_1[3] == common_data_2[3] and sum(common_data_1[3]) != 0:
                 if not self.prev_state:
