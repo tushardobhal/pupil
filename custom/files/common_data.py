@@ -4,18 +4,20 @@ class CommonData:
         self.glass_id = None
         self.timestamp = None
         self.index = None
-        self.run_length_output = None
-        self.hit_scan_output = None
+        self.image = None
+        self.pupil_loc = None
+        self.confidence = None
 
-    def set_values(self, glass_id, timestamp, index, run_length_output, hit_scan_output):
+    def set_values(self, glass_id, timestamp, index, image, pupil_loc, confidence):
         self.glass_id = glass_id
         self.timestamp = timestamp
         self.index = index
-        self.run_length_output = run_length_output
-        self.hit_scan_output = hit_scan_output
+        self.image = image
+        self.pupil_loc = pupil_loc
+        self.confidence = confidence
 
     def get_values(self):
-        return self.glass_id, self.timestamp, self.index, self.run_length_output, self.hit_scan_output
+        return self.glass_id, self.timestamp, self.index, self.image, self.pupil_loc, self.confidence
 
     def __repr__(self):
         return str(self.__dict__)
