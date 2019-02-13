@@ -17,8 +17,12 @@ class DoStuff:
             pupil_0 = eye_0_proxy.get_values()
             pupil_1 = eye_1_proxy.get_values()
 
-            if world[0] is None or pupil_0[0] is None or pupil_1[0] is None or self.last_frame_processed == world[2]:
+            # if world[0] is None or pupil_0[0] is None or pupil_1[0] is None or self.last_frame_processed == world[2]:
+            #     continue
+
+            if world[0] is None or pupil_0[0] is None or pupil_1[0] is None:
                 continue
+
             # logger.info("Frame - {}, Timestamp - {}".format(world[2], world[1]))
             # logger.info(
             #     "Eye_Id - {}, Norm_Pos - {}, Confidence - {}, Timestamp - {}".format(pupil_0[2], pupil_0[3], pupil_0[4],

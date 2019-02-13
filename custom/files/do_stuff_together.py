@@ -26,26 +26,33 @@ class DoStuffTogether:
         while True:
             common_data_1 = common_data_proxy_1.get_values()
             common_data_2 = common_data_proxy_2.get_values()
-            if common_data_1[0] is None or common_data_2[0] is None or (
-                    common_data_1[2] == self.last_frame_index_1 and common_data_2[2] == self.last_frame_index_2):
+            if common_data_1[0] is None or common_data_2[0] is None:
                 continue
 
-            # logger.info("Glass_1 Frame - {}, Glass_2 Frame - {}, Glass_1 Timestamp - {}, Glass_2 Timestamp - {}".format(
-            #     common_data_1[2], common_data_2[2], common_data_1[1], common_data_2[1]))
-            # logger.info("Glass_1 output - {}, Glass_2 output - {}".format(common_data_1[3], common_data_2[3]))
+            # if common_data_1[0] is None or common_data_2[0] is None or (
+            #         common_data_1[2] == self.last_frame_index_1 and common_data_2[2] == self.last_frame_index_2):
+            #     continue
 
+            logger.info("Glass_1 Frame - {}, Glass_2 Frame - {}, Glass_1 Timestamp - {}, Glass_2 Timestamp - {}".format(
+                common_data_1[2], common_data_2[2], common_data_1[1], common_data_2[1]))
+
+            start = time.monotonic()
             concat_image = np.concatenate((common_data_1[3], common_data_2[3]), axis=0)
+            logger.info("Time taken for concat - {}".format((time.monotonic() - start)))
+
+            start = time.monotonic()
             try:
                 detections = self.object_detect.perform_detect(concat_image)
                 detections_glass1, detections_glass2 = self.split_detections(detections)
-                denorm_detections_glass1 = denormalize_detections(detections_glass1, common_data_1[5])
-                denorm_detections_glass2 = denormalize_detections(detections_glass2, common_data_2[5])
+                denorm_detections_glass1 = denormalize_detections(detections_glass1, common_data_1[5], 0)
+                denorm_detections_glass2 = denormalize_detections(detections_glass2, common_data_2[5], 1)
             except Exception as e:
                 raise e
+            logger.info("Time taken for getting detections - {}".format((time.monotonic() - start)))
 
             if self.debug:
-                self.display_image(common_data_1[0], detections, common_data_1[4], common_data_1[3])
-                self.display_image(common_data_2[0], detections, common_data_2[4], common_data_2[3])
+                self.display_image(common_data_1[0], denorm_detections_glass1, common_data_1[4], common_data_1[3])
+                self.display_image(common_data_2[0], denorm_detections_glass2, common_data_2[4], common_data_2[3])
 
             run_length_output_glass1 = self.perform_run_length(denorm_detections_glass1, common_data_1[4])
             run_length_output_glass2 = self.perform_run_length(denorm_detections_glass2, common_data_2[4])
@@ -122,7 +129,7 @@ class DoStuffTogether:
         detections_glass2 = []
 
         for detection in detections:
-            if detection[2, 1] < 208:
+            if detection[2][1] < 208:
                 detections_glass1.append(detection)
             else:
                 detections_glass2.append(detection)
@@ -134,17 +141,19 @@ def play_sound():
     print('\a')
 
 
-def denormalize_detections(detections, confidence):
+def denormalize_detections(detections, confidence, is_second):
     if detections is None or len(detections) == 0:
         return detections
 
     detections_new = []
     x_norm_base = 1280/416
-    y_norm_base = 720/416
+    y_norm_base = 1440/416
     for detection in detections:
         bounds = detection[2]
         x1 = bounds[0] * x_norm_base
         y1 = bounds[1] * y_norm_base
+        if is_second == 1:
+            y1 = y1 - 720
         width = bounds[2] * x_norm_base
         height = bounds[3] * y_norm_base + (1-confidence/100)*25
         if detection[0] == 0 or detection[0] == 4 or detection[0] == 5:
